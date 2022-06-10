@@ -59,7 +59,7 @@ namespace TestDeeplay.Server.Controllers
                 await _context.SaveChangesAsync();
                 return Ok(newEmployee.Id);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 return BadRequest();
             }
@@ -76,7 +76,7 @@ namespace TestDeeplay.Server.Controllers
                 {
                     return NotFound();
                 }
-                findedEmployee = _mapper.Map<EmployeeEntity>(findedEmployee);
+                findedEmployee = _mapper.Map(employeeDto, findedEmployee);
                 await _context.SaveChangesAsync();
                 return Ok();
 

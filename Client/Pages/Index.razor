@@ -7,7 +7,10 @@
 @inject PostService PostService
 @inject DepartmentService DepartmentService
 @inject NavigationManager NavigationManager
-<MudText Typo=Typo.h2 Style="margin-bottom:30px">Employees</MudText>
+<MudStack Row=true AlignItems=AlignItems.Center Justify=Justify.Center>
+
+    <MudText Typo=Typo.h2 Style="margin-bottom:30px">Employees</MudText>
+</MudStack>
 @if (_isLoad)
 {
     <MudStack Style="margin-top:200px" Justify=Justify.Center AlignItems=AlignItems.Center>
@@ -20,7 +23,7 @@ else
         <MudSelect Label="Department" Clearable=true @bind-Value=CurrentDepartment>
             @foreach (var department in _departments)
             {
-            <MudSelectItem  Value=department>@department.Name</MudSelectItem>
+            <MudSelectItem Value=department>@department.Name</MudSelectItem>
             }
     </MudSelect>
     <MudSelect Label="Post" Clearable=true @bind-Value=CurrentPost>
@@ -29,6 +32,7 @@ else
             <MudSelectItem Value=post>@post.Name</MudSelectItem>
             }
     </MudSelect>
+    <MudIconButton Href="employee/create" Color=Color.Success Size=Size.Large Icon=@(Icons.Filled.Add)></MudIconButton>
 </MudStack>
 
     <MudTable Hover=true Striped=true Items=@(_employees.Select((e, i) => new { Number = i + 1, Employee = e })) OnRowClick="ClickRow" T=dynamic>
@@ -56,10 +60,10 @@ else
     private List<EmployeeReadDto> _employees { get; set; } = new();
     private List<DepartmentReadDto> _departments { get; set; } = new();
     private List<PostShortReadDto> _posts { get; set; } = new();
-    private DepartmentReadDto _currentDepartment { get; set; }
+    private DepartmentReadDto _currentDepartment;
     private DepartmentReadDto CurrentDepartment
     {
-        get => _currentDepartment; 
+        get => _currentDepartment;
         set
         {
             _currentDepartment = value;

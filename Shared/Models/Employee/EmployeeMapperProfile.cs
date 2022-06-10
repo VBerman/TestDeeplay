@@ -14,6 +14,7 @@ namespace TestDeeplay.Shared.Models.Employee
         {
             CreateMap<EmployeeEntity, EmployeeReadDto>();
             CreateMap<EmployeePostDto, EmployeeEntity>();
+            CreateMap<EmployeeReadDto, EmployeePostDto>();
         }
     }
 }

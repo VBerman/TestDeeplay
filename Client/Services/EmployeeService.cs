@@ -43,5 +43,10 @@ namespace TestDeeplay.Client.Services
             var result = await _httpClient.PutAsJsonAsync($"api/employee/", employeePost);
             return result.IsSuccessStatusCode;
         }
+        public async Task<bool> Delete(int id)
+        {
+            var result = await _httpClient.DeleteAsync($"api/employee/{id}");
+            return result.IsSuccessStatusCode;
+        }
     }
 }

@@ -1,10 +1,18 @@
 ﻿@page "/Employee/{Id:int}"
 @page "/Employee/create"
+@using AutoMapper
 @using TestDeeplay.Client.Services
+@using TestDeeplay.Shared.Models.Department
 @using TestDeeplay.Shared.Models.Employee
 @using TestDeeplay.Shared.Enums
+@using TestDeeplay.Shared.Models.Post
 @inject EmployeeService EmployeeService
+@inject PostService PostService
+@inject IMapper Mapper
+@inject DepartmentService DepartmentService
 @inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
 <MudText Typo=Typo.h2 Style="margin-bottom:30px">Employee</MudText>
 @if (_isLoad)
 {
@@ -14,16 +22,35 @@
 }
 else
 {
-    <EditForm Model=@(_employee)>
+    <EditForm Model=@(_employee) OnValidSubmit=@(() => SaveChanges())>
         <DataAnnotationsValidator />
-        <MudTextField @bind-Value=_employee.FullName Label="Full name"></MudTextField>
-        <MudDatePicker @bind-Date=_employee.DateOfBirth></MudDatePicker>
-        <MudSelect @bind-Value=_employee.Gender>
+        <MudTextField @bind-Value=_employee.FullName Label="Full name" For=@(() => _employee.FullName)></MudTextField>
+        <MudDatePicker @bind-Date=_employee.DateOfBirth For=@(() => _employee.DateOfBirth)></MudDatePicker>
+        <MudSelect @bind-Value=_employee.Gender For=@(() => _employee.Gender)>
             @foreach (var gender in Enum.GetValues(typeof(Gender)).Cast<Gender>())
             {
             <MudSelectItem Value=@(gender) />
             }
-        </MudSelect>
+    </MudSelect>
+    <MudSelect Label="Department" Clearable=true @bind-Value=_currentDepartment>
+        @foreach (var department in _departments)
+            {
+            <MudSelectItem Value=department>@department.Name</MudSelectItem>
+            }
+    </MudSelect>
+    <MudSelect Label="Post" Clearable=true @bind-Value=_currentPost>
+        @foreach (var post in _posts)
+            {
+            <MudSelectItem Value=post>@post.Name</MudSelectItem>
+            }
+    </MudSelect>
+    <MudStack Style="margin-top:10px" Row=true>
+        @if (!_isCreate)
+            {
+                <MudButton hidden=true OnClick=@(() => Delete()) Color=Color.Warning>Delete</MudButton>
+            }
+            <MudButton Color=Color.Primary ButtonType=ButtonType.Submit>Save changes</MudButton>
+        </MudStack>
     </EditForm>
 }
 @code {
@@ -31,10 +58,84 @@ else
     private bool _isLoad { get; set; } = true;
     private EmployeeReadDto _employee { get; set; } = new();
     private bool _isCreate { get; set; } = false;
+
+    private DepartmentReadDto _currentDepartment { get; set; }
+    private PostShortReadDto _currentPost { get; set; }
+
+    private List<DepartmentReadDto> _departments { get; set; } = new();
+    private List<PostShortReadDto> _posts { get; set; } = new();
+
     protected override async Task OnInitializedAsync()
     {
-        _employee = await EmployeeService.GetSpecific(Id);
+        _departments = await DepartmentService.Get();
+        _posts = await PostService.GetShort();
+        _isCreate = NavigationManager.Uri.Split('/').Last().ToLower() == "create";
+        if (_isCreate)
+        {
+            _employee = new();
+        }
+        else
+        {
+            _employee = await EmployeeService.GetSpecific(Id);
+            _currentDepartment = _departments.FirstOrDefault(d => d.Id == _employee.DepartmentId);
+            _currentPost = _posts.FirstOrDefault(d => d.Id == _employee.PostId);
+        }
         _isLoad = false;
     }
+    private async Task SaveChanges()
+    {
+        var result = false;
+        _employee.PostId = _currentPost.Id;
+        _employee.DepartmentId = _currentDepartment.Id;
+        if (_isCreate)
+        {
+            result = await EmployeeService.CreateEmployee(Mapper.Map<EmployeePostDto>(_employee));
+            if (result)
+            {
+                Snackbar.Add("Success create", Severity.Success);
+                NavigationManager.NavigateTo("/");
+            }
+            else
+            {
+                Snackbar.Add("Error create", Severity.Error);
+            }
+        }
+        else
+        {
+            result = await EmployeeService.Update(Mapper.Map<EmployeePostDto>(_employee));
+            if (result)
+            {
+                Snackbar.Add("Success update", Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Error update", Severity.Error);
+            }
+        }
 
+    }
+    private async Task Delete()
+    {
+        var dialogResult = await DialogService.ShowMessageBox(
+                "Warning",
+                "Are you exactly want delete this employee?",
+                yesText: "YES!!!",
+                noText: "No:)");
+        if (dialogResult.Value == true)
+        {
+            if (_employee.Id != null)
+            {
+                var result = await EmployeeService.Delete(_employee.Id.Value);
+                if (result)
+                {
+                    Snackbar.Add("Success delete", Severity.Success);
+                    NavigationManager.NavigateTo("/");
+                }
+                else
+                {
+                    Snackbar.Add("Error delete", Severity.Error);
+                }
+            }
+        }
+    }
 }
