@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 using TestDeeplay.Shared.Models;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +10,10 @@ var configuration = new ConfigurationBuilder()
 
 // Add services to the container.
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews().AddJsonOptions(opt =>
+{
+    opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 builder.Services.AddRazorPages();
 
 // Add DBContext

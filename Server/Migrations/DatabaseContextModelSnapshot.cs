@@ -92,7 +92,7 @@ namespace TestDeeplay.Server.Migrations
                     b.ToTable("Posts");
                 });
 
-            modelBuilder.Entity("TestDeeplay.Shared.Models.PostInformation.PostInformationEntity", b =>
+            modelBuilder.Entity("TestDeeplay.Shared.Models.PostInformation.PostKeyEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -105,7 +105,23 @@ namespace TestDeeplay.Server.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
-                    b.Property<int?>("PostEntityId")
+                    b.HasKey("Id");
+
+                    b.ToTable("PostKeys");
+                });
+
+            modelBuilder.Entity("TestDeeplay.Shared.Models.PostInformationValue.PostValueEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<int>("KeyId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PostId")
                         .HasColumnType("int");
 
                     b.Property<string>("Value")
@@ -115,21 +131,23 @@ namespace TestDeeplay.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PostEntityId");
+                    b.HasIndex("KeyId");
 
-                    b.ToTable("PostInformations");
+                    b.HasIndex("PostId");
+
+                    b.ToTable("PostValues");
                 });
 
             modelBuilder.Entity("TestDeeplay.Shared.Models.Employee.EmployeeEntity", b =>
                 {
                     b.HasOne("TestDeeplay.Shared.Models.Department.DepartmentEntity", "Department")
-                        .WithMany()
+                        .WithMany("Employees")
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("TestDeeplay.Shared.Models.Post.PostEntity", "Post")
-                        .WithMany()
+                        .WithMany("Employees")
                         .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -139,16 +157,40 @@ namespace TestDeeplay.Server.Migrations
                     b.Navigation("Post");
                 });
 
-            modelBuilder.Entity("TestDeeplay.Shared.Models.PostInformation.PostInformationEntity", b =>
+            modelBuilder.Entity("TestDeeplay.Shared.Models.PostInformationValue.PostValueEntity", b =>
                 {
-                    b.HasOne("TestDeeplay.Shared.Models.Post.PostEntity", null)
-                        .WithMany("PostInformations")
-                        .HasForeignKey("PostEntityId");
+                    b.HasOne("TestDeeplay.Shared.Models.PostInformation.PostKeyEntity", "Key")
+                        .WithMany("Values")
+                        .HasForeignKey("KeyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TestDeeplay.Shared.Models.Post.PostEntity", "Post")
+                        .WithMany("Values")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Key");
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("TestDeeplay.Shared.Models.Department.DepartmentEntity", b =>
+                {
+                    b.Navigation("Employees");
                 });
 
             modelBuilder.Entity("TestDeeplay.Shared.Models.Post.PostEntity", b =>
                 {
-                    b.Navigation("PostInformations");
+                    b.Navigation("Employees");
+
+                    b.Navigation("Values");
+                });
+
+            modelBuilder.Entity("TestDeeplay.Shared.Models.PostInformation.PostKeyEntity", b =>
+                {
+                    b.Navigation("Values");
                 });
 #pragma warning restore 612, 618
         }

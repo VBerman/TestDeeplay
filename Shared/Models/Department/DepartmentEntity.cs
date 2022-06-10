@@ -14,7 +14,6 @@ namespace TestDeeplay.Shared.Models.Department
         public int Id { get; set; }
         [MaxLength(100)]
         public string Name { get; set; }
-        [NotMapped]
-        public ICollection<EmployeeEntity> Employees { get; set; }
+        public virtual ICollection<EmployeeEntity> Employees { get; set; }
     }
 }
