@@ -1,0 +1,40 @@
+﻿@page "/Employee/{Id:int}"
+@page "/Employee/create"
+@using TestDeeplay.Client.Services
+@using TestDeeplay.Shared.Models.Employee
+@using TestDeeplay.Shared.Enums
+@inject EmployeeService EmployeeService
+@inject NavigationManager NavigationManager
+<MudText Typo=Typo.h2 Style="margin-bottom:30px">Employee</MudText>
+@if (_isLoad)
+{
+    <MudStack Style="margin-top:200px" Justify=Justify.Center AlignItems=AlignItems.Center>
+        <MudProgressCircular Color="Color.Primary" Size=Size.Large Indeterminate="true" />
+    </MudStack>
+}
+else
+{
+    <EditForm Model=@(_employee)>
+        <DataAnnotationsValidator />
+        <MudTextField @bind-Value=_employee.FullName Label="Full name"></MudTextField>
+        <MudDatePicker @bind-Date=_employee.DateOfBirth></MudDatePicker>
+        <MudSelect @bind-Value=_employee.Gender>
+            @foreach (var gender in Enum.GetValues(typeof(Gender)).Cast<Gender>())
+            {
+            <MudSelectItem Value=@(gender) />
+            }
+        </MudSelect>
+    </EditForm>
+}
+@code {
+    [Parameter] public int Id { get; set; }
+    private bool _isLoad { get; set; } = true;
+    private EmployeeReadDto _employee { get; set; } = new();
+    private bool _isCreate { get; set; } = false;
+    protected override async Task OnInitializedAsync()
+    {
+        _employee = await EmployeeService.GetSpecific(Id);
+        _isLoad = false;
+    }
+
+}

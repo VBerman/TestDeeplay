@@ -13,4 +13,6 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddMudServices();
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddScoped<EmployeeService>();
+builder.Services.AddScoped<DepartmentService>();
+builder.Services.AddScoped<PostService>();
 await builder.Build().RunAsync();

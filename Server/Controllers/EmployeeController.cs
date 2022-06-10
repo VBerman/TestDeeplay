@@ -25,7 +25,7 @@ namespace TestDeeplay.Server.Controllers
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var employees = await _context.Employees.Include(e => e.Department).Include(e => e.Post).ThenInclude(p => p.Values).ThenInclude(v => v.Key).ToListAsync();
+            var employees = await _context.Employees.Include(e => e.Department).Include(e => e.Post).ToListAsync();
             return Ok(_mapper.Map<ICollection<EmployeeReadDto>>(employees));
         }
 
@@ -33,12 +33,19 @@ namespace TestDeeplay.Server.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var findEmployee = await _context.Employees.Include(e => e.Post).Include(e => e.Department).FirstOrDefaultAsync(e => e.Id == id);
+            var findEmployee = await _context.Employees.Include(e => e.Department).Include(e => e.Post).ThenInclude(p => p.Values).ThenInclude(v => v.Key).FirstOrDefaultAsync(e => e.Id == id);
             if (findEmployee is null)
             {
                 return NotFound();
             }
-            return Ok(findEmployee);
+            return Ok(_mapper.Map<EmployeeReadDto>(findEmployee));
+        }
+        
+        [HttpGet("{departmentId}/{postId}")]
+        public async Task<IActionResult> Get(int departmentId, int postId)
+        {
+            var employees = await _context.Employees.Include(e => e.Department).Include(e => e.Post).Where(e => e.PostId == postId & e.DepartmentId == departmentId).ToListAsync();
+            return Ok(_mapper.Map<ICollection<EmployeeReadDto>>(employees));
         }
 
         // POST api/<EmployeeController>

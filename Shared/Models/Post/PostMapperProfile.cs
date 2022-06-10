@@ -13,6 +13,7 @@ namespace TestDeeplay.Shared.Models.Post
         public PostMapperProfile()
         {
             CreateMap<PostEntity, PostReadDto>();
+            CreateMap<PostEntity, PostShortReadDto>();
         }
     }
 }

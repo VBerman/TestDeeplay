@@ -1,16 +1,117 @@
 ﻿@page "/"
 @using TestDeeplay.Client.Services
+@using TestDeeplay.Shared.Models.Department
+@using TestDeeplay.Shared.Models.Employee
+@using TestDeeplay.Shared.Models.Post
 @inject EmployeeService EmployeeService
-<h3>Employees</h3>
-<MudTable>
+@inject PostService PostService
+@inject DepartmentService DepartmentService
+@inject NavigationManager NavigationManager
+<MudText Typo=Typo.h2 Style="margin-bottom:30px">Employees</MudText>
+@if (_isLoad)
+{
+    <MudStack Style="margin-top:200px" Justify=Justify.Center AlignItems=AlignItems.Center>
+        <MudProgressCircular Color="Color.Primary" Size=Size.Large Indeterminate="true" />
+    </MudStack>
+}
+else
+{
+    <MudStack Style="margin-bottom:10px" Row=true>
+        <MudSelect Label="Department" Clearable=true @bind-Value=CurrentDepartment>
+            @foreach (var department in _departments)
+            {
+            <MudSelectItem  Value=department>@department.Name</MudSelectItem>
+            }
+    </MudSelect>
+    <MudSelect Label="Post" Clearable=true @bind-Value=CurrentPost>
+        @foreach (var post in _posts)
+            {
+            <MudSelectItem Value=post>@post.Name</MudSelectItem>
+            }
+    </MudSelect>
+</MudStack>
 
-</MudTable>
+    <MudTable Hover=true Striped=true Items=@(_employees.Select((e, i) => new { Number = i + 1, Employee = e })) OnRowClick="ClickRow" T=dynamic>
+        <HeaderContent>
+            <MudTh>#</MudTh>
+            <MudTh>Full name</MudTh>
+            <MudTh>Date of birth</MudTh>
+            <MudTh>Gender</MudTh>
+            <MudTh>Department</MudTh>
+            <MudTh>Post</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="#">@context.Number</MudTd>
+            <MudTd DataLabel="Full name">@context.Employee.FullName</MudTd>
+            <MudTd DataLabel="Date of birth">@context.Employee.DateOfBirth.ToShortDateString()</MudTd>
+            <MudTd DataLabel="Gender">@context.Employee.Gender</MudTd>
+            <MudTd DataLabel="Department">@context.Employee.Department.Name</MudTd>
+            <MudTd DataLabel="Post">@context.Employee.Post.Name</MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
 @code {
-
-    private 
+    private bool _isLoad { get; set; } = true;
+    private List<EmployeeReadDto> _employees { get; set; } = new();
+    private List<DepartmentReadDto> _departments { get; set; } = new();
+    private List<PostShortReadDto> _posts { get; set; } = new();
+    private DepartmentReadDto _currentDepartment { get; set; }
+    private DepartmentReadDto CurrentDepartment
+    {
+        get => _currentDepartment; 
+        set
+        {
+            _currentDepartment = value;
+            UpdateTable();
+        }
+    }
+    private PostShortReadDto _currentPost;
+    public PostShortReadDto CurrentPost
+    {
+        get => _currentPost;
+        set
+        {
+            _currentPost = value;
+            UpdateTable();
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
+        _employees = await EmployeeService.GetAll();
+        _departments = await DepartmentService.Get();
+        _posts = await PostService.GetShort();
+        _isLoad = false;
+    }
 
+    private void ClickRow(TableRowClickEventArgs<dynamic> choosedEmployee)
+    {
+        NavigationManager.NavigateTo($"Employee/{choosedEmployee.Item.Employee.Id}");
+    }
+
+    private async Task UpdateTable()
+    {
+        _isLoad = true;
+        if (_currentDepartment != null & _currentPost != null)
+        {
+            _employees = await EmployeeService.GetByDepartmentAndPost(_currentDepartment.Id, _currentPost.Id);
+
+        }
+        else if (_currentDepartment != null)
+        {
+            _employees = await DepartmentService.GetEmployees(_currentDepartment.Id);
+        }
+        else if (_currentPost != null)
+        {
+            _employees = await PostService.GetEmployees(_currentPost.Id);
+        }
+        else
+        {
+            _employees = await EmployeeService.GetAll();
+
+        }
+        _isLoad = false;
+        InvokeAsync(StateHasChanged);
     }
 }

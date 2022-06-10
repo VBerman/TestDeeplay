@@ -16,7 +16,7 @@ namespace TestDeeplay.Shared.Models.Employee
         [MinLength(4)]
         [MaxLength(150)]
         public string FullName { get; set; }
-        public DateTime DateOfBirth { get; set; }
+        public DateTime? DateOfBirth { get; set; }
         public Gender Gender { get; set; }
 
         public virtual DepartmentReadDto Department { get; set; }
