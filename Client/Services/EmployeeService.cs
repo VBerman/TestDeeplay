@@ -33,5 +33,15 @@ namespace TestDeeplay.Client.Services
             options.PropertyNameCaseInsensitive = true;
             return await _httpClient.GetFromJsonAsync<List<EmployeeReadDto>>($"api/employee/{departmentId}/{postId}", options);
         }
+        public async Task<bool> CreateEmployee(EmployeePostDto employeePost)
+        {
+            var result = await _httpClient.PostAsJsonAsync($"api/employee/", employeePost);
+            return result.IsSuccessStatusCode;
+        }
+        public async Task<bool> Update(EmployeePostDto employeePost)
+        {
+            var result = await _httpClient.PutAsJsonAsync($"api/employee/", employeePost);
+            return result.IsSuccessStatusCode;
+        }
     }
 }

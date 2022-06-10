@@ -40,7 +40,7 @@ namespace TestDeeplay.Server.Controllers
             }
             return Ok(_mapper.Map<EmployeeReadDto>(findEmployee));
         }
-        
+
         [HttpGet("{departmentId}/{postId}")]
         public async Task<IActionResult> Get(int departmentId, int postId)
         {
@@ -50,14 +50,43 @@ namespace TestDeeplay.Server.Controllers
 
         // POST api/<EmployeeController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public async Task<IActionResult> Post([FromBody] EmployeePostDto employeeDto)
         {
+            try
+            {
+                var newEmployee = _mapper.Map<EmployeeEntity>(employeeDto);
+                await _context.Employees.AddAsync(newEmployee);
+                await _context.SaveChangesAsync();
+                return Ok(newEmployee.Id);
+            }
+            catch (Exception)
+            {
+                return BadRequest();
+            }
         }
 
         // PUT api/<EmployeeController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPut]
+        public async Task<IActionResult> Put([FromBody] EmployeePostDto employeeDto)
         {
+            try
+            {
+                var findedEmployee = await _context.Employees.FirstOrDefaultAsync(e => e.Id == employeeDto.Id);
+                if (findedEmployee == null)
+                {
+                    return NotFound();
+                }
+                findedEmployee = _mapper.Map<EmployeeEntity>(findedEmployee);
+                await _context.SaveChangesAsync();
+                return Ok();
+
+            }
+            catch (Exception)
+            {
+
+                return BadRequest();
+            }
+
         }
 
         // DELETE api/<EmployeeController>/5
@@ -69,6 +98,8 @@ namespace TestDeeplay.Server.Controllers
             {
                 return NotFound();
             }
+            _context.Remove(findEmployee);
+            await _context.SaveChangesAsync();
             return Ok();
         }
     }

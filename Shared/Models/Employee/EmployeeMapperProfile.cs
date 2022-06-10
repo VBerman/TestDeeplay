@@ -13,6 +13,7 @@ namespace TestDeeplay.Shared.Models.Employee
         public EmployeeMapperProfile()
         {
             CreateMap<EmployeeEntity, EmployeeReadDto>();
+            CreateMap<EmployeePostDto, EmployeeEntity>();
         }
     }
 }

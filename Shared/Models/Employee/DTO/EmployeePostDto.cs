@@ -10,7 +10,7 @@ using TestDeeplay.Shared.Models.Post;
 
 namespace TestDeeplay.Shared.Models.Employee
 {
-    public class EmployeeReadDto
+    public class EmployeePostDto
     {
         public int? Id { get; set; }
         [MinLength(4)]
@@ -20,7 +20,6 @@ namespace TestDeeplay.Shared.Models.Employee
         public Gender Gender { get; set; }
         public int PostId { get; set; }
         public int DepartmentId { get; set; }
-        public virtual DepartmentReadDto Department { get; set; }
-        public virtual PostReadDto Post { get; set; }
+
     }
 }
