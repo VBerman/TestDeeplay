@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TestDeeplay.Shared.Enums;
+using TestDeeplay.Shared.Models.Department;
 using TestDeeplay.Shared.Models.Post;
 
 namespace TestDeeplay.Shared.Models.Employee
@@ -19,6 +20,8 @@ namespace TestDeeplay.Shared.Models.Employee
         public Gender Gender { get; set; }
 
         public int PostId { get; set; }
+        public int DepartmentId { get; set; }
         public virtual PostEntity Post { get; set; }
+        public virtual DepartmentEntity Department { get; set; }
     }
 }

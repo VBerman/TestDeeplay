@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +17,7 @@ namespace TestDeeplay.Shared.Models.Post
         [MinLength(4)]
         [MaxLength(50)]
         public string Name { get; set; }
+        [NotMapped]
         public ICollection<EmployeeEntity> Employees { get; set; } 
         public ICollection<PostInformationEntity> PostInformations { get; set; }
     }

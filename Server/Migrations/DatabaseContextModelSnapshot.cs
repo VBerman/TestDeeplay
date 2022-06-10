@@ -22,21 +22,6 @@ namespace TestDeeplay.Server.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("PostEntityPostInformationEntity", b =>
-                {
-                    b.Property<int>("PostInformationsId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PostsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("PostInformationsId", "PostsId");
-
-                    b.HasIndex("PostsId");
-
-                    b.ToTable("PostEntityPostInformationEntity");
-                });
-
             modelBuilder.Entity("TestDeeplay.Shared.Models.Department.DepartmentEntity", b =>
                 {
                     b.Property<int>("Id")
@@ -66,7 +51,7 @@ namespace TestDeeplay.Server.Migrations
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("DepartmentEntityId")
+                    b.Property<int>("DepartmentId")
                         .HasColumnType("int");
 
                     b.Property<string>("FullName")
@@ -82,7 +67,7 @@ namespace TestDeeplay.Server.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DepartmentEntityId");
+                    b.HasIndex("DepartmentId");
 
                     b.HasIndex("PostId");
 
@@ -120,6 +105,9 @@ namespace TestDeeplay.Server.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
+                    b.Property<int?>("PostEntityId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Value")
                         .IsRequired()
                         .HasMaxLength(150)
@@ -127,47 +115,40 @@ namespace TestDeeplay.Server.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("PostEntityId");
+
                     b.ToTable("PostInformations");
-                });
-
-            modelBuilder.Entity("PostEntityPostInformationEntity", b =>
-                {
-                    b.HasOne("TestDeeplay.Shared.Models.PostInformation.PostInformationEntity", null)
-                        .WithMany()
-                        .HasForeignKey("PostInformationsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TestDeeplay.Shared.Models.Post.PostEntity", null)
-                        .WithMany()
-                        .HasForeignKey("PostsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("TestDeeplay.Shared.Models.Employee.EmployeeEntity", b =>
                 {
-                    b.HasOne("TestDeeplay.Shared.Models.Department.DepartmentEntity", null)
-                        .WithMany("Employees")
-                        .HasForeignKey("DepartmentEntityId");
+                    b.HasOne("TestDeeplay.Shared.Models.Department.DepartmentEntity", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("TestDeeplay.Shared.Models.Post.PostEntity", "Post")
-                        .WithMany("Employees")
+                        .WithMany()
                         .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Department");
+
                     b.Navigation("Post");
                 });
 
-            modelBuilder.Entity("TestDeeplay.Shared.Models.Department.DepartmentEntity", b =>
+            modelBuilder.Entity("TestDeeplay.Shared.Models.PostInformation.PostInformationEntity", b =>
                 {
-                    b.Navigation("Employees");
+                    b.HasOne("TestDeeplay.Shared.Models.Post.PostEntity", null)
+                        .WithMany("PostInformations")
+                        .HasForeignKey("PostEntityId");
                 });
 
             modelBuilder.Entity("TestDeeplay.Shared.Models.Post.PostEntity", b =>
                 {
-                    b.Navigation("Employees");
+                    b.Navigation("PostInformations");
                 });
 #pragma warning restore 612, 618
         }
